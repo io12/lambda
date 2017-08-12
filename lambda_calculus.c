@@ -64,6 +64,7 @@ char *read_input(void)
 		}
 		free(input);
 	}
+	add_history(input);
 	return input;
 }
 
