@@ -46,7 +46,7 @@ struct expr *parse_lambda(void);
 struct expr *parse_var(void);
 void *xmalloc(const size_t size);
 void free_expr(struct expr *expr);
-void print_expr(struct expr *expr);
+void print_expr(const struct expr *expr, const bool in_r_app);
 void panic(const char *fmt, ...);
 
 static int peeked_tok = 0;
@@ -244,20 +244,25 @@ void free_expr(struct expr *expr)
 	free(expr);
 }
 
-void print_expr(struct expr *expr)
+void print_expr(const struct expr *expr, const bool in_r_app)
 {
 	switch (expr->type) {
 	case VAR:
 		putchar(expr->u.var.letter);
 		break;
 	case APP:
-		// TODO: need parens
-		print_expr(expr->u.app.l);
-		print_expr(expr->u.app.r);
+		if (in_r_app) {
+			putchar('(');
+		}
+		print_expr(expr->u.app.l, false);
+		print_expr(expr->u.app.r, true);
+		if (in_r_app) {
+			putchar(')');
+		}
 		break;
 	case LAMBDA:
 		printf("λ%c.", expr->u.lambda.param_letter);
-		print_expr(expr->u.lambda.body);
+		print_expr(expr->u.lambda.body, true);
 		break;
 	default:
 		panic("internal error");
@@ -281,7 +286,7 @@ int main(void)
 
 	for (;;) {
 		expr = parse_line();
-		print_expr(expr);
+		print_expr(expr, false);
 		putchar('\n');
 		free_expr(expr);
 	}
