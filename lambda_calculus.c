@@ -36,6 +36,8 @@ int next_tok(void);
 int peek_tok(void);
 void expect_tok(const int expected_tok);
 int next_nonspace_char(void);
+struct expr *parse_line(void);
+struct expr *parse_app(const int end_tok);
 struct expr *parse_expr(void);
 struct expr *parse_paren_expr(void);
 struct expr *parse_lambda(void);
@@ -73,7 +75,7 @@ int next_char(void)
 	}
 	if (s[n] == '\0') {
 		free(s);
-		s = read_input();
+		s = NULL;
 		n = 0;
 		return EOF;
 	}
@@ -114,7 +116,7 @@ void expect_tok(const int expected_tok)
 
 	recieved_tok = next_tok();
 	if (expected_tok != recieved_tok) {
-		panic("expected '%c', instead got '%c'", expected_tok, recieved_tok);
+		panic("expected '%c', instead got '%s'", expected_tok, recieved_tok == EOF ? "EOF" : (int[]){tok, '\0'});
 	}
 }
 
@@ -126,6 +128,30 @@ int next_nonspace_char(void)
 		c = next_char();
 	} while (isspace(c));
 	return c;
+}
+
+struct expr *parse_line(void)
+{
+	return parse_app(EOF);
+}
+
+struct expr *parse_app(const int end_tok)
+{
+	struct expr *expr, *super_expr;
+
+	for (;;) {
+		expr = parse_expr();
+		if (peek_tok() == end_tok) {
+			next_tok();
+			break;
+		}
+		super_expr = new(struct expr);
+		super_expr->type = APP;
+		super_expr->u.app.l = expr;
+		super_expr->u.app.r = parse_expr();
+		expr = super_expr;
+	}
+	return expr;
 }
 
 struct expr *parse_expr(void)
@@ -142,27 +168,13 @@ struct expr *parse_expr(void)
 	if (isalpha(tok)) {
 		return parse_var();
 	}
-	panic("stray token '%c'", tok);
+	panic("stray token '%s'", tok == EOF ? "EOF" : (int[]){tok, '\0'});
 }
 
 struct expr *parse_paren_expr(void)
 {
-	struct expr *expr, *super_expr;
-
 	expect_tok('(');
-	for (;;) {
-		expr = parse_expr();
-		if (peek_tok() == ')') {
-			next_tok();
-			break;
-		}
-		super_expr = new(struct expr);
-		super_expr->type = APP;
-		super_expr->u.app.l = expr;
-		super_expr->u.app.r = parse_expr();
-		expr = super_expr;
-	}
-	return expr;
+	return parse_app(')');
 }
 
 struct expr *parse_lambda(void)
@@ -224,6 +236,6 @@ noreturn void panic(const char *fmt, ...)
 int main(void)
 {
 	for (;;) {
-		parse_expr();
+		parse_line();
 	}
 }
