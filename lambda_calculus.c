@@ -34,14 +34,14 @@ char *read_input(void);
 int next_char(void);
 int next_tok(void);
 int peek_tok(void);
-void expect_tok(int expected_tok);
+void expect_tok(const int expected_tok);
 int next_nonspace_char(void);
 struct expr *parse_expr(void);
 struct expr *parse_paren_expr(void);
 struct expr *parse_lambda(void);
 struct expr *parse_var(void);
-void *xmalloc(size_t size);
-void panic(char *fmt, ...);
+void *xmalloc(const size_t size);
+void panic(const char *fmt, ...);
 
 static int peeked_tok = 0;
 
@@ -108,7 +108,7 @@ int peek_tok(void)
 	return tok;
 }
 
-void expect_tok(int expected_tok)
+void expect_tok(const int expected_tok)
 {
 	int recieved_tok;
 
@@ -198,7 +198,7 @@ struct expr *parse_var(void)
 	return expr;
 }
 
-void *xmalloc(size_t size)
+void *xmalloc(const size_t size)
 {
 	void *p;
 
@@ -210,7 +210,7 @@ void *xmalloc(size_t size)
 	return p;
 }
 
-noreturn void panic(char *fmt, ...)
+noreturn void panic(const char *fmt, ...)
 {
 	va_list ap;
 
