@@ -118,7 +118,8 @@ void expect_tok(const int expected_tok)
 
 	recieved_tok = next_tok();
 	if (expected_tok != recieved_tok) {
-		panic("expected %s, instead got %s", TOK_TO_STR(expected_tok), TOK_TO_STR(recieved_tok));
+		panic("expected %s, instead got %s",
+				TOK_TO_STR(expected_tok), TOK_TO_STR(recieved_tok));
 	}
 }
 
@@ -141,19 +142,16 @@ struct expr *parse_app(const int end_tok)
 {
 	struct expr *expr, *super_expr;
 
-	for (;;) {
-		expr = parse_expr();
-		if (peek_tok() == end_tok) {
-			next_tok();
-			break;
-		}
-		super_expr = new(struct expr);
-		super_expr->type = APP;
-		super_expr->u.app.l = expr;
-		super_expr->u.app.r = parse_expr();
-		expr = super_expr;
+	expr = parse_expr();
+	if (peek_tok() == end_tok) {
+		next_tok();
+		return expr;
 	}
-	return expr;
+	super_expr = new(struct expr);
+	super_expr->type = APP;
+	super_expr->u.app.l = expr;
+	super_expr->u.app.r = parse_app(end_tok);
+	return super_expr;
 }
 
 struct expr *parse_expr(void)
@@ -243,6 +241,26 @@ void free_expr(struct expr *expr)
 	free(expr);
 }
 
+void print_expr(struct expr *expr)
+{
+	switch (expr->type) {
+	case VAR:
+		putchar(expr->u.var.letter);
+		break;
+	case APP:
+		// TODO: need parens
+		print_expr(expr->u.app.l);
+		print_expr(expr->u.app.r);
+		break;
+	case LAMBDA:
+		printf("λ%c.", expr->u.lambda.param_letter);
+		print_expr(expr->u.lambda.body);
+		break;
+	default:
+		panic("internal error");
+	}
+}
+
 NORETURN void panic(const char *fmt, ...)
 {
 	va_list ap;
@@ -260,6 +278,8 @@ int main(void)
 
 	for (;;) {
 		expr = parse_line();
+		print_expr(expr);
+		putchar('\n');
 		free_expr(expr);
 	}
 }
