@@ -2,7 +2,7 @@
 
 static int peeked_tok = 0;
 
-char *read_input(void)
+static char *read_input(void)
 {
 	char *input;
 
@@ -21,7 +21,7 @@ char *read_input(void)
 	return input;
 }
 
-int next_char(void)
+static int next_char(void)
 {
 	static char *s = NULL;
 	static int n = 0;
@@ -42,7 +42,7 @@ int next_char(void)
 	return s[n++];
 }
 
-int next_nonspace_char(void)
+static int next_nonspace_char(void)
 {
 	int c;
 
