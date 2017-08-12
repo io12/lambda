@@ -7,12 +7,14 @@
 #include <readline/history.h>
 
 #ifdef __GNUC__
-#define noreturn __attribute__((noreturn))
+#define NORETURN __attribute__((noreturn))
 #else
-#define noreturn
+#define NORETURN
 #endif
 
-#define new(type) (type *) xmalloc(sizeof(type))
+#define new(type) ((type *) xmalloc(sizeof(type)))
+
+#define TOK_TO_STR(X) (X == EOF ? "EOF" : (char[]){'\'', X, '\'', '\0'})
 
 struct expr {
 	enum { VAR, APP, LAMBDA } type;
@@ -95,7 +97,7 @@ int next_tok(void)
 	if (c == EOF || c == '.' || c == '\\' || c == '(' || c == ')' || isalpha(c)) {
 		return c;
 	}
-	panic("invalid token '%c'", c);
+	panic("invalid token %s", TOK_TO_STR(c));
 }
 
 int peek_tok(void)
@@ -116,7 +118,7 @@ void expect_tok(const int expected_tok)
 
 	recieved_tok = next_tok();
 	if (expected_tok != recieved_tok) {
-		panic("expected '%c', instead got '%s'", expected_tok, recieved_tok == EOF ? "EOF" : (int[]){tok, '\0'});
+		panic("expected %s, instead got %s", TOK_TO_STR(expected_tok), TOK_TO_STR(recieved_tok));
 	}
 }
 
@@ -168,7 +170,7 @@ struct expr *parse_expr(void)
 	if (isalpha(tok)) {
 		return parse_var();
 	}
-	panic("stray token '%s'", tok == EOF ? "EOF" : (int[]){tok, '\0'});
+	panic("stray token %s", TOK_TO_STR(tok));
 }
 
 struct expr *parse_paren_expr(void)
@@ -185,7 +187,7 @@ struct expr *parse_lambda(void)
 	expect_tok('\\');
 	param_letter = next_tok();
 	if (!isalpha(param_letter)) {
-		panic("expected a letter, instead recieved '%c'", param_letter);
+		panic("expected a letter, instead recieved %s", TOK_TO_STR(param_letter));
 	}
 	expect_tok('.');
 	expr = new(struct expr);
@@ -202,7 +204,7 @@ struct expr *parse_var(void)
 
 	var_letter = next_tok();
 	if (!isalpha(var_letter)) {
-		panic("expected a letter, instead recieved '%c'", var_letter);
+		panic("expected a letter, instead recieved %s", TOK_TO_STR(var_letter));
 	}
 	expr = new(struct expr);
 	expr->type = VAR;
@@ -222,7 +224,7 @@ void *xmalloc(const size_t size)
 	return p;
 }
 
-noreturn void panic(const char *fmt, ...)
+NORETURN void panic(const char *fmt, ...)
 {
 	va_list ap;
 
