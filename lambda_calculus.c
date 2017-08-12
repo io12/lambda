@@ -224,6 +224,25 @@ void *xmalloc(const size_t size)
 	return p;
 }
 
+void free_expr(struct expr *expr)
+{
+	switch (expr->type)
+	{
+	case VAR:
+		break;
+	case APP:
+		free_expr(expr->u.app.l);
+		free_expr(expr->u.app.r);
+		break;
+	case LAMBDA:
+		free_expr(expr->u.lambda.body);
+		break;
+	default:
+		panic("internal error");
+	}
+	free(expr);
+}
+
 NORETURN void panic(const char *fmt, ...)
 {
 	va_list ap;
@@ -237,7 +256,10 @@ NORETURN void panic(const char *fmt, ...)
 
 int main(void)
 {
+	struct expr *expr;
+
 	for (;;) {
-		parse_line();
+		expr = parse_line();
+		free_expr(expr);
 	}
 }
