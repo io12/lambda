@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include <ctype.h>
 #include <readline/readline.h>
 #include <readline/history.h>
@@ -40,7 +41,7 @@ void expect_tok(const int expected_tok);
 int next_nonspace_char(void);
 struct expr *parse_line(void);
 struct expr *parse_app(const int end_tok);
-struct expr *parse_expr(void);
+struct expr *parse_term(void);
 struct expr *parse_paren_expr(void);
 struct expr *parse_lambda(void);
 struct expr *parse_var(void);
@@ -73,7 +74,7 @@ char *read_input(void)
 
 int next_char(void)
 {
-	static unsigned char *s = NULL;
+	static char *s = NULL;
 	static int n = 0;
 
 	if (s == NULL) {
@@ -85,7 +86,7 @@ int next_char(void)
 		n = 0;
 		return EOF;
 	}
-	if (s[n] == 0xce && s[n + 1] == 0xbb) { // UTF-8 'λ' U+03bb
+	if ((uint8_t)s[n] == 0xce && (uint8_t)s[n + 1] == 0xbb) { // UTF-8 'λ' U+03bb
 		n += 2;
 		return '\\';
 	}
@@ -148,21 +149,21 @@ struct expr *parse_line(void)
 
 struct expr *parse_app(const int end_tok)
 {
-	struct expr *expr, *super_expr;
+	struct expr *l_expr, *super_expr;
 
-	expr = parse_expr();
+	l_expr = parse_term();
 	if (peek_tok() == end_tok) {
 		next_tok();
-		return expr;
+		return l_expr;
 	}
 	super_expr = new(struct expr);
 	super_expr->type = APP;
-	super_expr->u.app.l = expr;
-	super_expr->u.app.r = parse_app(end_tok);
+	super_expr->u.app.l = l_expr;
+	super_expr->u.app.r = parse_term();
 	return super_expr;
 }
 
-struct expr *parse_expr(void)
+struct expr *parse_term(void)
 {
 	int tok;
 
@@ -199,7 +200,7 @@ struct expr *parse_lambda(void)
 	expr = new(struct expr);
 	expr->type = LAMBDA;
 	expr->u.lambda.param_letter = param_letter;
-	expr->u.lambda.body = parse_expr();
+	expr->u.lambda.body = parse_term();
 	return expr;
 }
 
