@@ -149,18 +149,20 @@ struct expr *parse_line(void)
 
 struct expr *parse_app(const int end_tok)
 {
-	struct expr *l_expr, *super_expr;
+	struct expr *expr, *super_expr;
 
-	l_expr = parse_term();
-	if (peek_tok() == end_tok) {
-		next_tok();
-		return l_expr;
+	expr = parse_term();
+	for (;;) {
+		if (peek_tok() == end_tok) {
+			next_tok();
+			return expr;
+		}
+		super_expr = new(struct expr);
+		super_expr->type = APP;
+		super_expr->u.app.l = expr;
+		super_expr->u.app.r = parse_term();
+		expr = super_expr;
 	}
-	super_expr = new(struct expr);
-	super_expr->type = APP;
-	super_expr->u.app.l = l_expr;
-	super_expr->u.app.r = parse_term();
-	return super_expr;
 }
 
 struct expr *parse_term(void)
