@@ -252,6 +252,7 @@ void free_expr(struct expr *expr)
 void print_expr(const struct expr *expr)
 {
 	print_expr_1(expr, false);
+	putchar('\n');
 }
 
 void print_expr_1(const struct expr *expr, const bool in_r_app)
@@ -297,7 +298,6 @@ int main(void)
 	for (;;) {
 		expr = parse_line();
 		print_expr(expr);
-		putchar('\n');
 		free_expr(expr);
 	}
 }
