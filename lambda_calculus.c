@@ -46,7 +46,8 @@ struct expr *parse_lambda(void);
 struct expr *parse_var(void);
 void *xmalloc(const size_t size);
 void free_expr(struct expr *expr);
-void print_expr(const struct expr *expr, const bool in_r_app);
+void print_expr(const struct expr *expr);
+void print_expr_1(const struct expr *expr, const bool in_r_app);
 void panic(const char *fmt, ...);
 
 static int peeked_tok = 0;
@@ -72,7 +73,7 @@ char *read_input(void)
 
 int next_char(void)
 {
-	static char *s = NULL;
+	static unsigned char *s = NULL;
 	static int n = 0;
 
 	if (s == NULL) {
@@ -83,6 +84,10 @@ int next_char(void)
 		s = NULL;
 		n = 0;
 		return EOF;
+	}
+	if (s[n] == 0xce && s[n + 1] == 0xbb) {
+		n += 2;
+		return '\\';
 	}
 	return s[n++];
 }
@@ -244,7 +249,12 @@ void free_expr(struct expr *expr)
 	free(expr);
 }
 
-void print_expr(const struct expr *expr, const bool in_r_app)
+void print_expr(const struct expr *expr)
+{
+	print_expr_1(expr, false);
+}
+
+void print_expr_1(const struct expr *expr, const bool in_r_app)
 {
 	switch (expr->type) {
 	case VAR:
@@ -254,15 +264,15 @@ void print_expr(const struct expr *expr, const bool in_r_app)
 		if (in_r_app) {
 			putchar('(');
 		}
-		print_expr(expr->u.app.l, false);
-		print_expr(expr->u.app.r, true);
+		print_expr_1(expr->u.app.l, false);
+		print_expr_1(expr->u.app.r, true);
 		if (in_r_app) {
 			putchar(')');
 		}
 		break;
 	case LAMBDA:
 		printf("λ%c.", expr->u.lambda.param_letter);
-		print_expr(expr->u.lambda.body, true);
+		print_expr_1(expr->u.lambda.body, true);
 		break;
 	default:
 		panic("internal error");
@@ -286,7 +296,7 @@ int main(void)
 
 	for (;;) {
 		expr = parse_line();
-		print_expr(expr, false);
+		print_expr(expr);
 		putchar('\n');
 		free_expr(expr);
 	}
