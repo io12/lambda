@@ -85,7 +85,7 @@ int next_char(void)
 		n = 0;
 		return EOF;
 	}
-	if (s[n] == 0xce && s[n + 1] == 0xbb) {
+	if (s[n] == 0xce && s[n + 1] == 0xbb) { // UTF-8 'λ' U+03bb
 		n += 2;
 		return '\\';
 	}
