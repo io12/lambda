@@ -45,6 +45,8 @@ struct expr *parse_paren_expr(void);
 struct expr *parse_lambda(void);
 struct expr *parse_var(void);
 void *xmalloc(const size_t size);
+void free_expr(struct expr *expr);
+void print_expr(struct expr *expr);
 void panic(const char *fmt, ...);
 
 static int peeked_tok = 0;
