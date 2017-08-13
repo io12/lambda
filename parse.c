@@ -1,6 +1,14 @@
+#include <ctype.h>
+#include <stdio.h>
+#include "lambda_calc.h"
+
 #define new(type) ((type *) xmalloc(sizeof(type)))
 
-#define TOK_TO_STR(X) (X == EOF ? "EOF" : (char[]){'\'', X, '\'', '\0'})
+static struct expr *parse_app(const int end_tok);
+static struct expr *parse_term(void);
+static struct expr *parse_paren_expr(void);
+static struct expr *parse_lambda(void);
+static struct expr *parse_var(void);
 
 struct expr *parse_line(void)
 {

@@ -1,29 +1,12 @@
-#include "u.h"
-#include <readline/readline.h>
-#include <readline/history.h>
+#include <stdarg.h>
+#include <stdbool.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include "lambda_calc.h"
 
-#ifdef __GNUC__
-#define NORETURN __attribute__((noreturn))
-#else
-#define NORETURN
-#endif
-
-struct expr {
-	enum { VAR, APP, LAMBDA } type;
-	union {
-		struct {
-			int letter;
-		} var;
-		struct {
-			struct expr *l, *r;
-		} app;
-		struct {
-			int param_letter;
-			struct expr *body;
-		} lambda;
-	} u;
-};
+static void free_expr(struct expr *expr);
+static void print_expr(const struct expr *expr);
+static void print_expr_1(const struct expr *expr, const bool in_r_app);
 
 void *xmalloc(const size_t size)
 {
@@ -37,7 +20,7 @@ void *xmalloc(const size_t size)
 	return p;
 }
 
-void free_expr(struct expr *expr)
+static void free_expr(struct expr *expr)
 {
 	switch (expr->type)
 	{
@@ -56,13 +39,13 @@ void free_expr(struct expr *expr)
 	free(expr);
 }
 
-void print_expr(const struct expr *expr)
+static void print_expr(const struct expr *expr)
 {
 	print_expr_1(expr, false);
 	putchar('\n');
 }
 
-void print_expr_1(const struct expr *expr, const bool in_r_app)
+static void print_expr_1(const struct expr *expr, const bool in_r_app)
 {
 	switch (expr->type) {
 	case VAR:

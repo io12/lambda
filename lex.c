@@ -1,3 +1,9 @@
+#include <ctype.h>
+#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <readline/readline.h>
+#include <readline/history.h>
 #include "lambda_calc.h"
 
 static int peeked_tok = 0;
