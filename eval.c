@@ -2,14 +2,14 @@
 #include <string.h>
 #include "lambda_calc.h"
 
-static bool beta_reduce(struct expr *expr);
-static void substitute(const int var_letter, struct expr *replacement, /* in */ struct expr *expr);
-static bool is_free_var(const int var_letter, /* in */ const struct expr *expr);
+static bool beta_reduce(Expr *expr);
+static void substitute(const int var_letter, Expr *replacement, /* in */ Expr *expr);
+static bool is_free_var(const int var_letter, /* in */ const Expr *expr);
 
 // returns true if fully reduced
-static bool beta_reduce(struct expr *expr)
+static bool beta_reduce(Expr *expr)
 {
-	struct expr *lambda;
+	Expr *lambda;
 
 	switch (expr->type) {
 	case VAR:
@@ -29,13 +29,13 @@ static bool beta_reduce(struct expr *expr)
 }
 
 // TODO: add calls to free()
-static void substitute(const int var_letter, struct expr *replacement, /* in */ struct expr *expr)
+static void substitute(const int var_letter, Expr *replacement, /* in */ Expr *expr)
 {
 	switch (expr->type) {
 	case VAR:
 		// [x/a] x = a
 		if (expr->u.var.letter == var_letter) {
-			memcpy(expr, replacement, sizeof(struct expr));
+			memcpy(expr, replacement, sizeof(Expr));
 		}
 		// [x/a] y = y
 		return;
@@ -59,7 +59,7 @@ static void substitute(const int var_letter, struct expr *replacement, /* in */ 
 	}
 }
 
-static bool is_free_var(const int var_letter, /* in */ const struct expr *expr)
+static bool is_free_var(const int var_letter, /* in */ const Expr *expr)
 {
 	switch (expr->type) {
 	case VAR:

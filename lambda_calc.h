@@ -6,7 +6,7 @@
 
 #define TOK_TO_STR(X) (X == EOF ? "EOF" : (char[]){'\'', X, '\'', '\0'})
 
-struct expr {
+typedef struct expr {
 	enum { VAR, APP, LAMBDA } type;
 	union {
 		struct {
@@ -20,11 +20,11 @@ struct expr {
 			struct expr *body;
 		} lambda;
 	} u;
-};
+} Expr;
 
 int next_tok(void);
 int peek_tok(void);
 void expect_tok(const int expected_tok);
 void *xmalloc(const size_t size);
 NORETURN void panic(const char *fmt, ...);
-struct expr *parse_line(void);
+Expr *parse_line(void);

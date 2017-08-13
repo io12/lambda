@@ -4,9 +4,9 @@
 #include <stdlib.h>
 #include "lambda_calc.h"
 
-static void free_expr(struct expr *expr);
-static void print_expr(const struct expr *expr);
-static void print_expr_1(const struct expr *expr, const bool should_paren_app);
+static void free_expr(Expr *expr);
+static void print_expr(const Expr *expr);
+static void print_expr_1(const Expr *expr, const bool should_paren_app);
 
 void *xmalloc(const size_t size)
 {
@@ -20,7 +20,7 @@ void *xmalloc(const size_t size)
 	return p;
 }
 
-static void free_expr(struct expr *expr)
+static void free_expr(Expr *expr)
 {
 	switch (expr->type)
 	{
@@ -37,13 +37,13 @@ static void free_expr(struct expr *expr)
 	free(expr);
 }
 
-static void print_expr(const struct expr *expr)
+static void print_expr(const Expr *expr)
 {
 	print_expr_1(expr, false);
 	putchar('\n');
 }
 
-static void print_expr_1(const struct expr *expr, const bool should_paren_app)
+static void print_expr_1(const Expr *expr, const bool should_paren_app)
 {
 	switch (expr->type) {
 	case VAR:
@@ -79,7 +79,7 @@ NORETURN void panic(const char *fmt, ...)
 
 int main(void)
 {
-	struct expr *expr;
+	Expr *expr;
 
 	for (;;) {
 		expr = parse_line();
