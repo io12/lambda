@@ -1,4 +1,9 @@
+#include <stdbool.h>
+#include <string.h>
 #include "lambda_calc.h"
+
+static bool beta_reduce(struct expr *expr);
+static void substitute(int var_letter, struct expr *replacement, struct expr *expr);
 
 // returns true if fully reduced
 static bool beta_reduce(struct expr *expr)
