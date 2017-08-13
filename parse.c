@@ -7,7 +7,7 @@ struct expr *parse_line(void)
 	return parse_app(EOF);
 }
 
-struct expr *parse_app(const int end_tok)
+static struct expr *parse_app(const int end_tok)
 {
 	struct expr *expr, *super_expr;
 
@@ -25,7 +25,7 @@ struct expr *parse_app(const int end_tok)
 	}
 }
 
-struct expr *parse_term(void)
+static struct expr *parse_term(void)
 {
 	int tok;
 
@@ -42,13 +42,13 @@ struct expr *parse_term(void)
 	panic("stray token %s", TOK_TO_STR(tok));
 }
 
-struct expr *parse_paren_expr(void)
+static struct expr *parse_paren_expr(void)
 {
 	expect_tok('(');
 	return parse_app(')');
 }
 
-struct expr *parse_lambda(void)
+static struct expr *parse_lambda(void)
 {
 	int param_letter;
 	struct expr *expr;
@@ -66,7 +66,7 @@ struct expr *parse_lambda(void)
 	return expr;
 }
 
-struct expr *parse_var(void)
+static struct expr *parse_var(void)
 {
 	int var_letter;
 	struct expr *expr;

@@ -1,17 +1,8 @@
-char *read_input(void);
-int next_char(void);
 int next_tok(void);
 int peek_tok(void);
 void expect_tok(const int expected_tok);
-int next_nonspace_char(void);
-struct expr *parse_line(void);
-struct expr *parse_app(const int end_tok);
-struct expr *parse_term(void);
-struct expr *parse_paren_expr(void);
-struct expr *parse_lambda(void);
-struct expr *parse_var(void);
 void *xmalloc(const size_t size);
 void free_expr(struct expr *expr);
 void print_expr(const struct expr *expr);
-void print_expr_1(const struct expr *expr, const _Bool in_r_app);
 void panic(const char *fmt, ...);
+struct expr *parse_line(void);
