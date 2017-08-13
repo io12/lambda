@@ -33,8 +33,6 @@ static void free_expr(struct expr *expr)
 	case LAMBDA:
 		free_expr(expr->u.lambda.body);
 		break;
-	default:
-		panic("internal error");
 	}
 	free(expr);
 }
@@ -65,8 +63,6 @@ static void print_expr_1(const struct expr *expr, const bool should_paren_app)
 		printf("λ%c.", expr->u.lambda.param_letter);
 		print_expr_1(expr->u.lambda.body, true);
 		break;
-	default:
-		panic("internal error");
 	}
 }
 

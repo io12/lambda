@@ -51,7 +51,5 @@ static void substitute(int var_letter, struct expr *replacement, struct expr *ex
 		// [x/a] λy.e = λy.([x/a] e)
 		substitute(var_letter, replacement, expr->u.lambda.body); // TODO: fv
 		return;
-	default:
-		panic("internal error"); // TODO: Is this needed?
 	}
 }
