@@ -6,7 +6,7 @@
 
 static void free_expr(struct expr *expr);
 static void print_expr(const struct expr *expr);
-static void print_expr_1(const struct expr *expr, const bool in_r_app);
+static void print_expr_1(const struct expr *expr, const bool should_paren_app);
 
 void *xmalloc(const size_t size)
 {
@@ -45,19 +45,19 @@ static void print_expr(const struct expr *expr)
 	putchar('\n');
 }
 
-static void print_expr_1(const struct expr *expr, const bool in_r_app)
+static void print_expr_1(const struct expr *expr, const bool should_paren_app)
 {
 	switch (expr->type) {
 	case VAR:
 		putchar(expr->u.var.letter);
 		break;
 	case APP:
-		if (in_r_app) {
+		if (should_paren_app) {
 			putchar('(');
 		}
 		print_expr_1(expr->u.app.l, false);
 		print_expr_1(expr->u.app.r, true);
-		if (in_r_app) {
+		if (should_paren_app) {
 			putchar(')');
 		}
 		break;
