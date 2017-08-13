@@ -3,7 +3,8 @@
 #include "lambda_calc.h"
 
 static bool beta_reduce(struct expr *expr);
-static void substitute(int var_letter, struct expr *replacement, struct expr *expr);
+static void substitute(const int var_letter, struct expr *replacement, /* in */ struct expr *expr);
+static bool is_free_var(const int var_letter, /* in */ const struct expr *expr);
 
 // returns true if fully reduced
 static bool beta_reduce(struct expr *expr)
@@ -28,7 +29,7 @@ static bool beta_reduce(struct expr *expr)
 }
 
 // TODO: add calls to free()
-static void substitute(int var_letter, struct expr *replacement, struct expr *expr)
+static void substitute(const int var_letter, struct expr *replacement, /* in */ struct expr *expr)
 {
 	switch (expr->type) {
 	case VAR:
@@ -48,8 +49,27 @@ static void substitute(int var_letter, struct expr *replacement, struct expr *ex
 		if (expr->u.lambda.param_letter == var_letter) {
 			return;
 		}
-		// [x/a] λy.e = λy.([x/a] e)
-		substitute(var_letter, replacement, expr->u.lambda.body); // TODO: fv
+		// [x/a] λy.e = λy.([x/a] e) if y is not a free var in a
+		if (!is_free_var(expr->u.lambda.param_letter, replacement)) {
+			substitute(var_letter, replacement, expr->u.lambda.body);
+		} else {
+			// TODO
+		}
 		return;
+	}
+}
+
+static bool is_free_var(const int var_letter, /* in */ const struct expr *expr)
+{
+	switch (expr->type) {
+	case VAR:
+		return expr->u.var.letter == var_letter;
+	case APP:
+		return is_free_var(var_letter, expr->u.app.l) ||
+			is_free_var(var_letter, expr->u.app.r);
+	case LAMBDA:
+		return expr->u.lambda.param_letter == var_letter
+			? false
+			: is_free_var(var_letter, expr->u.lambda.body);
 	}
 }
