@@ -14,8 +14,7 @@ void *xmalloc(const size_t size)
 
 	p = malloc(size);
 	if (p == NULL) {
-		perror("malloc");
-		exit(EXIT_FAILURE);
+		panic("out of memory");
 	}
 	return p;
 }
