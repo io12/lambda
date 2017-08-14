@@ -3,10 +3,11 @@
 #include "lambda_calc.h"
 
 static bool beta_reduce(Expr *expr);
-static void substitute(const int var_letter, Expr *replacement, /* in */ Expr *expr);
+static void substitute(const int var_letter, /* for */ const Expr *replacement, /* in */ Expr *expr);
 static bool is_free_var(const int var_letter, /* in */ const Expr *expr);
+static int find_unused_or_bound_var_in(const Expr *expr);
 
-// returns true if fully reduced
+// Returns true if already reduced
 static bool beta_reduce(Expr *expr)
 {
 	Expr *lambda;
@@ -20,8 +21,9 @@ static bool beta_reduce(Expr *expr)
 				beta_reduce(expr->u.app.r);
 		}
 		lambda = expr->u.app.l;
-		substitute(lambda->u.lambda.param_letter,
-				expr->u.app.r, lambda->u.lambda.body);
+		// TODO
+		substitute(lambda->u.lambda.param_letter, /* for */
+				expr->u.app.r, /* in */ lambda->u.lambda.body);
 		return false;
 	case LAMBDA:
 		return beta_reduce(expr->u.lambda.body);
@@ -29,7 +31,7 @@ static bool beta_reduce(Expr *expr)
 }
 
 // TODO: add calls to free()
-static void substitute(const int var_letter, Expr *replacement, /* in */ Expr *expr)
+static void substitute(const int var_letter, /* for */ const Expr *replacement, /* in */ Expr *expr)
 {
 	switch (expr->type) {
 	case VAR:
@@ -41,20 +43,27 @@ static void substitute(const int var_letter, Expr *replacement, /* in */ Expr *e
 		return;
 	case APP:
 		// [x/a] (e e') = ([x/a] e) ([x/a] e')
-		substitute(var_letter, replacement, expr->u.app.l);
-		substitute(var_letter, replacement, expr->u.app.r);
+		substitute(var_letter, /* for */ replacement, /* in */ expr->u.app.l);
+		substitute(var_letter, /* for */ replacement, /* in */ expr->u.app.r);
 		return;
 	case LAMBDA:
 		// [x/a] λx.e = λx.e
 		if (expr->u.lambda.param_letter == var_letter) {
 			return;
 		}
-		// [x/a] λy.e = λy.([x/a] e) if y is not a free var in a
-		if (!is_free_var(expr->u.lambda.param_letter, replacement)) {
-			substitute(var_letter, replacement, expr->u.lambda.body);
-		} else {
+		// Alpha-conversion (capture-avoiding substitution)
+		if (is_free_var(expr->u.lambda.param_letter, replacement)) {
 			// TODO
+			const int replacement_letter = find_unused_or_bound_var_in(replacement);
+			Expr *replacement_var = new(Expr);
+			replacement_var->type = VAR;
+			replacement_var->u.var.letter = replacement_letter;
+			substitute(expr->u.lambda.param_letter, /* for */
+					replacement_var, /* in */ expr->u.lambda.body);
+			expr->u.lambda.param_letter = replacement_letter;
 		}
+		// [x/a] λy.e = λy.([x/a] e) if y is not a free var in a
+		substitute(var_letter, /* for */ replacement, /* in */ expr->u.lambda.body);
 		return;
 	}
 }
@@ -72,4 +81,16 @@ static bool is_free_var(const int var_letter, /* in */ const Expr *expr)
 			? false
 			: is_free_var(var_letter, expr->u.lambda.body);
 	}
+}
+
+static int find_unused_or_bound_var_in(const Expr *expr)
+{
+	int letter;
+
+	for (letter = 'a'; letter <= 'z'; letter++) {
+		if (!is_free_var(letter, expr)) {
+			return letter;
+		}
+	}
+	panic("no unused or bound vars available");
 }

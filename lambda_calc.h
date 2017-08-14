@@ -6,6 +6,8 @@
 
 #define TOK_TO_STR(X) (X == EOF ? "EOF" : (char[]){'\'', X, '\'', '\0'})
 
+#define new(type) ((type *) xmalloc(sizeof(type)))
+
 typedef struct expr {
 	enum { VAR, APP, LAMBDA } type;
 	union {

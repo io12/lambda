@@ -2,8 +2,6 @@
 #include <stdio.h>
 #include "lambda_calc.h"
 
-#define new(type) ((type *) xmalloc(sizeof(type)))
-
 static Expr *parse_app(const int end_tok);
 static Expr *parse_term(void);
 static Expr *parse_paren_expr(void);
