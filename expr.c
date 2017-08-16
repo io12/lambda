@@ -3,7 +3,8 @@
 #include <string.h>
 #include "lambda_calc.h"
 
-static void expr_print__(const Expr *expr, const bool should_paren_app);
+static void expr_print__(const Expr *expr, const bool should_paren_app,
+		const bool should_paren_lambda);
 
 Expr *expr_dup(const Expr *expr)
 {
@@ -48,11 +49,12 @@ void expr_free(Expr *expr)
 
 void expr_print(const Expr *expr)
 {
-	expr_print__(expr, false);
+	expr_print__(expr, false, false);
 	putchar('\n');
 }
 
-static void expr_print__(const Expr *expr, const bool should_paren_app)
+static void expr_print__(const Expr *expr, const bool should_paren_app,
+		const bool should_paren_lambda)
 {
 	switch (expr->type) {
 	case VAR:
@@ -62,15 +64,21 @@ static void expr_print__(const Expr *expr, const bool should_paren_app)
 		if (should_paren_app) {
 			putchar('(');
 		}
-		expr_print__(expr->u.app.l, false);
-		expr_print__(expr->u.app.r, true);
+		expr_print__(expr->u.app.l, false, true);
+		expr_print__(expr->u.app.r, true, should_paren_lambda);
 		if (should_paren_app) {
 			putchar(')');
 		}
 		break;
 	case LAMBDA:
+		if (should_paren_lambda) {
+			putchar('(');
+		}
 		printf("λ%c.", expr->u.lambda.param_letter);
-		expr_print__(expr->u.lambda.body, true);
+		expr_print__(expr->u.lambda.body, false, false);
+		if (should_paren_lambda) {
+			putchar(')');
+		}
 		break;
 	}
 }

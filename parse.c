@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include "lambda_calc.h"
 
-static Expr *parse_app(const int end_tok);
+static Expr *parse_app(void);
 static Expr *parse_term(void);
 static Expr *parse_paren_expr(void);
 static Expr *parse_lambda(void);
@@ -11,17 +11,21 @@ static Expr *parse_var(void);
 
 Expr *parse_line(void)
 {
-	return parse_app(EOF);
+	Expr *expr;
+
+	expr = parse_app();
+	expect_tok(EOF);
+	return expr;
 }
 
-static Expr *parse_app(const int end_tok)
+static Expr *parse_app(void)
 {
 	Expr *expr, *super_expr;
 
 	expr = parse_term();
 	for (;;) {
-		if (peek_tok() == end_tok) {
-			next_tok();
+		if (peek_tok() == ')' || peek_tok() == EOF) {
+			// TODO: next_tok();
 			return expr;
 		}
 		super_expr = new(Expr);
@@ -51,8 +55,12 @@ static Expr *parse_term(void)
 
 static Expr *parse_paren_expr(void)
 {
+	Expr *expr;
+
 	expect_tok('(');
-	return parse_app(')');
+	expr = parse_app();
+	expect_tok(')');
+	return expr;
 }
 
 static Expr *parse_lambda(void)
@@ -69,7 +77,7 @@ static Expr *parse_lambda(void)
 	expr = new(Expr);
 	expr->type = LAMBDA;
 	expr->u.lambda.param_letter = param_letter;
-	expr->u.lambda.body = parse_term();
+	expr->u.lambda.body = parse_app();
 	return expr;
 }
 
