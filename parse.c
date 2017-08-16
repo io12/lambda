@@ -1,6 +1,6 @@
 #include <ctype.h>
 #include <stdbool.h>
-#include <stdio.h>
+#include <stddef.h>
 #include "lambda_calc.h"
 
 static Expr *parse_app(void);
@@ -14,7 +14,7 @@ Expr *parse_line(void)
 	Expr *expr;
 
 	expr = parse_app();
-	expect_tok(EOF);
+	expect_tok('\n');
 	return expr;
 }
 
@@ -24,7 +24,7 @@ static Expr *parse_app(void)
 
 	expr = parse_term();
 	for (;;) {
-		if (peek_tok() == ')' || peek_tok() == EOF) {
+		if (peek_tok() == ')' || peek_tok() == '\n') {
 			return expr;
 		}
 		super_expr = new(Expr);

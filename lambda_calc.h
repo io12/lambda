@@ -4,7 +4,7 @@
 #define NORETURN
 #endif
 
-#define TOK_TO_STR(X) (X == EOF ? "EOF" : (char[]){'\'', X, '\'', '\0'})
+#define TOK_TO_STR(X) (X == '\n' ? "<END OF LINE>" : (char[]){'\'', X, '\'', '\0'})
 
 #define new(type) ((type *) xmalloc(sizeof(type)))
 

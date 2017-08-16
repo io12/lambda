@@ -40,7 +40,7 @@ static int next_char(void)
 		free(s);
 		s = NULL;
 		n = 0;
-		return EOF;
+		return '\n';
 	}
 	if ((uint8_t)s[n] == 0xce && (uint8_t)s[n + 1] == 0xbb) { // UTF-8 'λ' U+03bb
 		n += 2;
@@ -55,7 +55,7 @@ static int next_nonspace_char(void)
 
 	do {
 		c = next_char();
-	} while (isspace(c));
+	} while (isblank(c));
 	return c;
 }
 
@@ -69,7 +69,7 @@ int next_tok(void)
 		return tok;
 	}
 	c = next_nonspace_char();
-	if (c == EOF || c == '.' || c == '\\' || c == '(' || c == ')' || isalpha(c)) {
+	if (c == '\n' || c == '.' || c == '\\' || c == '(' || c == ')' || isalpha(c)) {
 		return c;
 	}
 	panic("invalid token %s", TOK_TO_STR(c));
