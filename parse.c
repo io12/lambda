@@ -25,7 +25,6 @@ static Expr *parse_app(void)
 	expr = parse_term();
 	for (;;) {
 		if (peek_tok() == ')' || peek_tok() == EOF) {
-			// TODO: next_tok();
 			return expr;
 		}
 		super_expr = new(Expr);

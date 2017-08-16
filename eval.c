@@ -49,7 +49,6 @@ Expr *beta_reduce(const Expr *expr)
 	return result;
 }
 
-// TODO: add calls to free()
 static Expr *subst(const int var_letter, /* for */ const Expr *subst_expr,
 		/* in */ const Expr *expr)
 {
