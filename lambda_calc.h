@@ -24,9 +24,15 @@ typedef struct expr {
 	} u;
 } Expr;
 
+void *xmalloc(const size_t size);
+NORETURN void panic(const char *fmt, ...);
 int next_tok(void);
 int peek_tok(void);
 void expect_tok(const int expected_tok);
-void *xmalloc(const size_t size);
-NORETURN void panic(const char *fmt, ...);
 Expr *parse_line(void);
+Expr *expr_dup(const Expr *expr);
+Expr *expr_dup_no_recurse(const Expr *expr);
+void expr_free(Expr *expr);
+void expr_print(const Expr *expr);
+bool eval_done(const Expr *expr);
+Expr *beta_reduce(const Expr *expr);

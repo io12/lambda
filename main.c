@@ -1,12 +1,9 @@
+// TODO
 #include <stdarg.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include "lambda_calc.h"
-
-static void free_expr(Expr *expr);
-static void print_expr(const Expr *expr);
-static void print_expr_1(const Expr *expr, const bool should_paren_app);
 
 void *xmalloc(const size_t size)
 {
@@ -17,52 +14,6 @@ void *xmalloc(const size_t size)
 		panic("out of memory");
 	}
 	return p;
-}
-
-static void free_expr(Expr *expr)
-{
-	switch (expr->type)
-	{
-	case VAR:
-		break;
-	case APP:
-		free_expr(expr->u.app.l);
-		free_expr(expr->u.app.r);
-		break;
-	case LAMBDA:
-		free_expr(expr->u.lambda.body);
-		break;
-	}
-	free(expr);
-}
-
-static void print_expr(const Expr *expr)
-{
-	print_expr_1(expr, false);
-	putchar('\n');
-}
-
-static void print_expr_1(const Expr *expr, const bool should_paren_app)
-{
-	switch (expr->type) {
-	case VAR:
-		putchar(expr->u.var.letter);
-		break;
-	case APP:
-		if (should_paren_app) {
-			putchar('(');
-		}
-		print_expr_1(expr->u.app.l, false);
-		print_expr_1(expr->u.app.r, true);
-		if (should_paren_app) {
-			putchar(')');
-		}
-		break;
-	case LAMBDA:
-		printf("λ%c.", expr->u.lambda.param_letter);
-		print_expr_1(expr->u.lambda.body, true);
-		break;
-	}
 }
 
 NORETURN void panic(const char *fmt, ...)
@@ -78,11 +29,17 @@ NORETURN void panic(const char *fmt, ...)
 
 int main(void)
 {
-	Expr *expr;
+	Expr *expr, *old_expr;
 
 	for (;;) {
 		expr = parse_line();
-		print_expr(expr);
-		free_expr(expr);
+		while (!eval_done(expr)) {
+			expr_print(expr);
+			old_expr = expr;
+			expr = beta_reduce(expr);
+			expr_free(old_expr);
+		}
+		expr_print(expr);
+		expr_free(expr);
 	}
 }
