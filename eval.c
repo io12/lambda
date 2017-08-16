@@ -81,7 +81,6 @@ static Expr *subst(const int var_letter, /* for */ const Expr *subst_expr,
 		result = expr_dup_no_recurse(expr);
 		// Alpha-conversion (capture-avoiding substitution)
 		if (is_free_var(expr->u.lambda.param_letter, subst_expr)) {
-			// TODO
 			const int subst_letter =
 				find_unused_or_bound_var_in(subst_expr);
 			Expr *subst_var = new(Expr);
