@@ -65,6 +65,7 @@ static void expr_print__(const Expr *expr, const bool should_paren_app,
 			putchar('(');
 		}
 		expr_print__(expr->u.app.l, false, true);
+		putchar(' ');
 		expr_print__(expr->u.app.r, true, should_paren_lambda);
 		if (should_paren_app) {
 			putchar(')');
