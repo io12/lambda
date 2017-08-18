@@ -4,8 +4,8 @@
 #include "lambda_calc.h"
 
 static Expr *parse_app(void);
-static Expr *parse_term(void);
-static Expr *parse_paren_expr(void);
+static Expr *parse_non_app(void);
+static Expr *parse_paren(void);
 static Expr *parse_lambda(void);
 static Expr *parse_var(void);
 
@@ -22,7 +22,7 @@ static Expr *parse_app(void)
 {
 	Expr *expr, *super_expr;
 
-	expr = parse_term();
+	expr = parse_non_app();
 	for (;;) {
 		if (peek_tok() == ')' || peek_tok() == '\n') {
 			return expr;
@@ -30,19 +30,19 @@ static Expr *parse_app(void)
 		super_expr = new(Expr);
 		super_expr->type = APP;
 		super_expr->u.app.l = expr;
-		super_expr->u.app.r = parse_term();
+		super_expr->u.app.r = parse_non_app();
 		expr = super_expr;
 	}
 }
 
-static Expr *parse_term(void)
+static Expr *parse_non_app(void)
 {
 	int tok;
 
 	tok = peek_tok();
 	switch (tok) {
 	case '(':
-		return parse_paren_expr();
+		return parse_paren();
 	case '\\':
 		return parse_lambda();
 	}
@@ -52,7 +52,7 @@ static Expr *parse_term(void)
 	panic("stray token %s", TOK_TO_STR(tok));
 }
 
-static Expr *parse_paren_expr(void)
+static Expr *parse_paren(void)
 {
 	Expr *expr;
 
