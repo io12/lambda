@@ -91,6 +91,6 @@ static Expr *parse_var(void)
 	}
 	expr = new(Expr);
 	expr->type = VAR;
-	expr->u.var.letter = var_letter;
+	expr->u.var = var_letter;
 	return expr;
 }

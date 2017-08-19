@@ -59,7 +59,7 @@ static void expr_print__(const Expr *expr, const bool should_paren_app,
 {
 	switch (expr->type) {
 	case VAR:
-		putchar(expr->u.var.letter);
+		putchar(expr->u.var);
 		break;
 	case APP:
 		if (should_paren_app) {

@@ -14,9 +14,7 @@
 typedef struct expr {
 	enum { VAR, APP, LAMBDA } type;
 	union {
-		struct {
-			int letter;
-		} var;
+		int var;
 		struct {
 			struct expr *l, *r;
 		} app;

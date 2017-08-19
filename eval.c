@@ -58,7 +58,7 @@ static Expr *subst(const int var_letter, /* for */ const Expr *subst_expr,
 	switch (expr->type) {
 	case VAR:
 		// [x/a] x = a
-		if (expr->u.var.letter == var_letter) {
+		if (expr->u.var == var_letter) {
 			result = expr_dup(subst_expr);
 			break;
 		}
@@ -86,7 +86,7 @@ static Expr *subst(const int var_letter, /* for */ const Expr *subst_expr,
 				find_unused_or_bound_var_in(subst_expr);
 			Expr *subst_var = new(Expr);
 			subst_var->type = VAR;
-			subst_var->u.var.letter = subst_letter;
+			subst_var->u.var = subst_letter;
 			result->u.lambda.var = subst_letter;
 			result->u.lambda.body = subst(expr->u.lambda.var,
 					/* for */ subst_var,
@@ -104,7 +104,7 @@ static bool is_free_var(const int var_letter, /* in */ const Expr *expr)
 {
 	switch (expr->type) {
 	case VAR:
-		return expr->u.var.letter == var_letter;
+		return expr->u.var == var_letter;
 	case APP:
 		return is_free_var(var_letter, expr->u.app.l) ||
 			is_free_var(var_letter, expr->u.app.r);
