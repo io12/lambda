@@ -76,7 +76,7 @@ static void expr_print__(const Expr *expr, const bool should_paren_app,
 		if (should_paren_lambda) {
 			putchar('(');
 		}
-		printf("λ%c.", expr->u.lambda.param_letter);
+		printf("λ%c.", expr->u.lambda.var);
 		expr_print__(expr->u.lambda.body, false, false);
 		if (should_paren_lambda) {
 			putchar(')');

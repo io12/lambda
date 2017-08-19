@@ -21,7 +21,7 @@ typedef struct expr {
 			struct expr *l, *r;
 		} app;
 		struct {
-			int param_letter;
+			int var;
 			struct expr *body;
 		} lambda;
 	} u;

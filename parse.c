@@ -64,18 +64,18 @@ static Expr *parse_paren(void)
 
 static Expr *parse_lambda(void)
 {
-	int param_letter;
+	int var;
 	Expr *expr;
 
 	expect_tok('\\');
-	param_letter = next_tok();
-	if (!isalpha(param_letter)) {
-		panic("expected a letter, instead recieved %s", TOK_TO_STR(param_letter));
+	var = next_tok();
+	if (!isalpha(var)) {
+		panic("expected a letter, instead recieved %s", TOK_TO_STR(var));
 	}
 	expect_tok('.');
 	expr = new(Expr);
 	expr->type = LAMBDA;
-	expr->u.lambda.param_letter = param_letter;
+	expr->u.lambda.var = var;
 	expr->u.lambda.body = parse_app();
 	return expr;
 }

@@ -39,7 +39,7 @@ Expr *beta_reduce(const Expr *expr)
 		}
 		// (λx.a)y β-> [x/y]a
 		const Expr *lambda = expr->u.app.l;
-		result = subst(lambda->u.lambda.param_letter, /* for */
+		result = subst(lambda->u.lambda.var, /* for */
 				expr->u.app.r, /* in */ lambda->u.lambda.body);
 		break;
 	case LAMBDA:
@@ -75,20 +75,20 @@ static Expr *subst(const int var_letter, /* for */ const Expr *subst_expr,
 		break;
 	case LAMBDA:
 		// [x/a] λx.e = λx.e
-		if (expr->u.lambda.param_letter == var_letter) {
+		if (expr->u.lambda.var == var_letter) {
 			result = expr_dup(expr);
 			break;
 		}
 		result = expr_dup_no_recurse(expr);
 		// Alpha-conversion (capture-avoiding substitution)
-		if (is_free_var(expr->u.lambda.param_letter, subst_expr)) {
+		if (is_free_var(expr->u.lambda.var, subst_expr)) {
 			const int subst_letter =
 				find_unused_or_bound_var_in(subst_expr);
 			Expr *subst_var = new(Expr);
 			subst_var->type = VAR;
 			subst_var->u.var.letter = subst_letter;
-			result->u.lambda.param_letter = subst_letter;
-			result->u.lambda.body = subst(expr->u.lambda.param_letter,
+			result->u.lambda.var = subst_letter;
+			result->u.lambda.body = subst(expr->u.lambda.var,
 					/* for */ subst_var,
 					/* in */ expr->u.lambda.body);
 		}
@@ -109,7 +109,7 @@ static bool is_free_var(const int var_letter, /* in */ const Expr *expr)
 		return is_free_var(var_letter, expr->u.app.l) ||
 			is_free_var(var_letter, expr->u.app.r);
 	case LAMBDA:
-		return expr->u.lambda.param_letter == var_letter
+		return expr->u.lambda.var == var_letter
 			? false
 			: is_free_var(var_letter, expr->u.lambda.body);
 	}
