@@ -18,6 +18,7 @@ bool eval_done(const Expr *expr)
 	case LAMBDA:
 		return eval_done(expr->u.lambda.body);
 	}
+	panic("internal error"); // NOTREACHED (silence gcc warning)
 }
 
 Expr *beta_reduce(const Expr *expr)
@@ -112,6 +113,7 @@ static bool is_free_var(const int var_letter, /* in */ const Expr *expr)
 			? false
 			: is_free_var(var_letter, expr->u.lambda.body);
 	}
+	panic("internal error"); // NOTREACHED (silence gcc warning)
 }
 
 static int find_unused_or_bound_var_in(const Expr *expr)
