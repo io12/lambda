@@ -82,15 +82,15 @@ static Expr *parse_lambda(void)
 
 static Expr *parse_var(void)
 {
-	int var_letter;
+	int var;
 	Expr *expr;
 
-	var_letter = next_tok();
-	if (!isalpha(var_letter)) {
-		panic("expected a letter, instead recieved %s", TOK_TO_STR(var_letter));
+	var = next_tok();
+	if (!isalpha(var)) {
+		panic("expected a letter, instead recieved %s", TOK_TO_STR(var));
 	}
 	expr = new(Expr);
 	expr->type = VAR;
-	expr->u.var = var_letter;
+	expr->u.var = var;
 	return expr;
 }

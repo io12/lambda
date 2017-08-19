@@ -2,9 +2,9 @@
 #include <stddef.h>
 #include "lambda_calc.h"
 
-static Expr *subst(const int var_letter, /* for */ const Expr *subst,
+static Expr *subst(const int var, /* for */ const Expr *subst,
 		/* in */ const Expr *expr);
-static bool is_free_var(const int var_letter, /* in */ const Expr *expr);
+static bool is_free_var(const int var, /* in */ const Expr *expr);
 static int find_unused_or_bound_var_in(const Expr *expr);
 
 bool eval_done(const Expr *expr)
@@ -50,7 +50,7 @@ Expr *beta_reduce(const Expr *expr)
 	return result;
 }
 
-static Expr *subst(const int var_letter, /* for */ const Expr *subst_expr,
+static Expr *subst(const int var, /* for */ const Expr *subst_expr,
 		/* in */ const Expr *expr)
 {
 	Expr *result;
@@ -58,7 +58,7 @@ static Expr *subst(const int var_letter, /* for */ const Expr *subst_expr,
 	switch (expr->type) {
 	case VAR:
 		// [x/a] x = a
-		if (expr->u.var == var_letter) {
+		if (expr->u.var == var) {
 			result = expr_dup(subst_expr);
 			break;
 		}
@@ -68,14 +68,14 @@ static Expr *subst(const int var_letter, /* for */ const Expr *subst_expr,
 	case APP:
 		// [x/a] (e e') = ([x/a] e) ([x/a] e')
 		result = expr_dup_no_recurse(expr);
-		result->u.app.l = subst(var_letter, /* for */ subst_expr,
+		result->u.app.l = subst(var, /* for */ subst_expr,
 				/* in */ expr->u.app.l);
-		result->u.app.r = subst(var_letter, /* for */ subst_expr,
+		result->u.app.r = subst(var, /* for */ subst_expr,
 				/* in */ expr->u.app.r);
 		break;
 	case LAMBDA:
 		// [x/a] λx.e = λx.e
-		if (expr->u.lambda.var == var_letter) {
+		if (expr->u.lambda.var == var) {
 			result = expr_dup(expr);
 			break;
 		}
@@ -93,25 +93,25 @@ static Expr *subst(const int var_letter, /* for */ const Expr *subst_expr,
 					/* in */ expr->u.lambda.body);
 		}
 		// [x/a] λy.e = λy.([x/a] e) if y is not a free var in a
-		result->u.lambda.body = subst(var_letter, /* for */ subst_expr,
+		result->u.lambda.body = subst(var, /* for */ subst_expr,
 				/* in */ expr->u.lambda.body);
 		break;
 	}
 	return result;
 }
 
-static bool is_free_var(const int var_letter, /* in */ const Expr *expr)
+static bool is_free_var(const int var, /* in */ const Expr *expr)
 {
 	switch (expr->type) {
 	case VAR:
-		return expr->u.var == var_letter;
+		return expr->u.var == var;
 	case APP:
-		return is_free_var(var_letter, expr->u.app.l) ||
-			is_free_var(var_letter, expr->u.app.r);
+		return is_free_var(var, expr->u.app.l) ||
+			is_free_var(var, expr->u.app.r);
 	case LAMBDA:
-		return expr->u.lambda.var == var_letter
+		return expr->u.lambda.var == var
 			? false
-			: is_free_var(var_letter, expr->u.lambda.body);
+			: is_free_var(var, expr->u.lambda.body);
 	}
 	panic("internal error"); // NOTREACHED (silence gcc warning)
 }
