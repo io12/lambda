@@ -11,19 +11,20 @@
 
 #define new(type) ((type *) xmalloc(sizeof(type)))
 
-typedef struct expr {
+typedef struct expr Expr;
+struct expr {
 	enum { VAR, APP, LAMBDA } type;
 	union {
 		int var;
 		struct {
-			struct expr *l, *r;
+			Expr *l, *r;
 		} app;
 		struct {
 			int var;
-			struct expr *body;
+			Expr *body;
 		} lambda;
 	} u;
-} Expr;
+};
 
 void *xmalloc(const size_t size);
 NORETURN void panic(const char *fmt, ...);
